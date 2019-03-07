@@ -165,3 +165,15 @@ sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled
 ```
 
 ![app_available](https://s3-ap-southeast-2.amazonaws.com/innablr/app_available.PNG)
+
+There is also a command to test any syntax errors in your config file:
+
+```
+sudo service nginx configtest
+```
+
+![config_ok](https://s3-ap-southeast-2.amazonaws.com/innablr/config_ok.PNG)
+
+If the config message returns ok, restart the server and refresh the servers address in your web browser but without the port number and it should work as normal.
+
+![welcome_to_nginx](https://s3-ap-southeast-2.amazonaws.com/innablr/welcome_to_nginx.PNG)
