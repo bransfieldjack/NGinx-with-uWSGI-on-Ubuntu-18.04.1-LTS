@@ -1,6 +1,6 @@
 ![uwsgi_nginx_python](https://s3-ap-southeast-2.amazonaws.com/innablr/uwsgi_nginx_python.png)
 
-### Setting Up NGinx
+### Setting Up uWSGI
 
 Before you start using NGinx you'll need to run an update on your version of Ubuntu.
 
@@ -9,7 +9,7 @@ sudo apt-get update
 sudo apt-get install python-dev python-pip nginx
 ```
 
-Next, setup your virtual envinronment:
+Next, setup your virtual environment:
 
 ```
 sudo pip install virtualenv
@@ -42,7 +42,7 @@ uWSGI server looks for a callable function called 'application' by default. Now 
 uwsgi --socket 0.0.0.0:8080 --protocol=http -w wsgi
 ```
 
-Now visit the servers IP (I am running this instance on EC2 - make sure you allow port 2020 in the security group or else you wont be able to access the page) and verify access. In the above, we manually provided the command to run the server and pass in our parameters from the command line. Like terraform, we can (somewhat) automate this process using a configuration file:
+Now visit the servers IP (I am running this instance on EC2 - make sure you allow port 8080 in the security group or else you wont be able to access the page) and verify access. In the above, we manually provided the command to run the server and pass in our parameters from the command line. Like terraform, we can (somewhat) automate this process using a configuration file:
 
 ```
 nano ~/python-microservices/building_microservices/app.ini
@@ -140,3 +140,28 @@ We should now be able to start the service by just typing
 ```
 sudo start myapp
 ```
+
+
+### Setting Up Nginx
+
+We are going to configure NGinx as a 'reverse proxy' basically, it will take http requests and redirect them to the uWSGI socket and then eventually on to our application. Navigate to the following directory and create a file called 'myapp' or whatever you prefer to call it. This is our conmfiguration file for Nginx. In this case it will be very rudimentary:
+
+```
+server {
+    listen 80;
+    server_name server_domain_or_IP;
+
+    location / {
+      include         uwsgi_params;
+      uwsgi_pass      unix:/home/demo/myapp/myapp.sock;
+  }
+}
+```
+
+The location block that begins with '/' in the above config, basically routes all traffic to the same place (uwsgi --> myapp). Link the config file to the available-sites with the following command:
+
+```
+sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled
+```
+
+![app_available](https://s3-ap-southeast-2.amazonaws.com/innablr/app_available.PNG)
